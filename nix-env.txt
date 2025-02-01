@@ -1,0 +1,22 @@
+The nix-env command is a command-line tool provided by the Nix package manager.
+It is used to manage packages on a Nix-based system. nix-env allows users to install, update, and remove packages, as well as search for available packages and manage package profiles.
+
+Here are some common commands used with nix-env:
+
+    nix-env -i <package>              # Installs the specified package.
+    nix-env -u                        # Updates all installed packages.
+    nix-env -e <package>              # Uninstalls the specified package.
+    nix-env -qa <pattern>             # Searches for available packages matching the specified pattern.
+    nix-env -p <profile> -i <package> # Installs the specified package into a specific profile.
+    nix-env -p <profile> -e <package> # Uninstalls the specified package from a specific profile.
+
+( With "nix profile list" you can list installed packages )
+
+
+nix-env operates on user profiles by default, but can also be used with system profiles with appropriate permissions.
+
+sudo nix-env -i <package>                          # Install a package into the system profile
+sudo nix-env -e <package>                          # Uninstall a package from the system profile
+sudo nix-env -u                                    # Update all packages in the system profile
+sudo nix-env -p /nix/var/nix/profiles/system -u    # Update the system profile explicitly
+

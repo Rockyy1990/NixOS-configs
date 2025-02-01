@@ -1,0 +1,215 @@
+# /etc/nixos/configuration.nix
+
+# after edit this config file: save it and run command: " sudo nixos-rebuild switch ". Than reboot the System.
+# The command is used to rebuild the NixOS system with the specified configuration and switch to the new configuration.
+# By running it as root, you ensure that the necessary permissions are available for modifying the system files.
+
+# Import the NixOS modules
+{ config, pkgs, ... }:
+
+# Set your system-wide options
+{
+  # Set your desired hostname
+  networking.hostName = "nixos";
+
+  # Enable nonfree software
+  nixpkgs.config.allowUnfree = true;
+
+  # Custom Kernel
+  # Zen Kernel
+  boot.kernelPackages = pkgs.linuxPackages_zen
+
+
+ # Specify the desired Plasma desktop environment
+  services.xserver = {
+    enable = true;
+    desktopManager.plasma5.enable = true;
+  };
+
+
+  # XFCE Desktop Environment
+   services.xserver = {
+    enable = true;
+    desktopManager = {
+      xterm.enable = false;
+      xfce.enable = true;
+    };
+    displayManager.defaultSession = "xfce";
+  };
+
+
+  # Enable OpenGL
+  hardware.opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+  };
+
+
+  # Load nvidia driver for Xorg and Wayland
+  services.xserver.videoDrivers = ["nvidia"];
+
+  hardware.nvidia = {
+
+    # Modesetting is required.
+    modesetting.enable = true;
+
+    # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
+    powerManagement.enable = false;
+    # Fine-grained power management. Turns off GPU when not in use.
+    # Experimental and only works on modern Nvidia GPUs (Turing or newer).
+    powerManagement.finegrained = false;
+
+    # Use the NVidia open source kernel module (not to be confused with the
+    # independent third-party "nouveau" open source driver).
+    # Support is limited to the Turing and later architectures. Full list of
+    # supported GPUs is at:
+    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
+    # Only available from driver 515.43.04+
+    # Currently alpha-quality/buggy, so false is currently the recommended setting.
+    open = false;
+
+    # Enable the Nvidia settings menu,
+	# accessible via `nvidia-settings`.
+    nvidiaSettings = true;
+
+    # Optionally, you may need to select the appropriate driver version for your specific GPU.
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+
+# intel
+boot.kernelParams = [ "module_blacklist=i915" ];
+# AMD
+boot.kernelParams = [ "module_blacklist=amdgpu" ];
+
+
+# Can reduce performance.
+# It also drastically increases the time the driver needs to clock down after load.
+
+# hardware.nvidia.forceFullCompositionPipeline = true;
+
+
+
+  # Update the systemPackages attribute
+  environment.systemPackages = with pkgs; [
+  git
+  curl
+  zip
+  rar
+  fakeroot
+  pavucontrol
+  exfat
+  f2fs-tools
+  xfsdump
+  mono
+  vulkan-loader
+  vulkan-extension-layer
+  vulkan-validation-layers
+  ocl-icd
+  xdg-desktop-portal
+  xdg-user-dirs
+  xdg-desktop-portal-gtk
+  whitesur-icon-theme
+  liberation_ttf
+
+  # Basic
+  vlc
+  strawberry
+  thunderbird
+  libreoffice
+  gnome.file-roller
+  ventoy
+
+  # Multimedia Support
+  flac
+  lame
+  twolame
+  x264
+  ffmpeg
+  yt-dlp
+  hypnotix
+  soundconverter
+  freac
+  obs-studio
+
+  # Gaming
+  wine-staging
+  winetricks
+  corefonts
+  bottles
+  protonup-qt
+  faudio
+  libgdiplus
+  openal
+  libva
+  vaapiVdpau
+];
+
+
+  # Optimize Nix-Store
+  nix.settings.auto-optimise-store = true;
+
+  # Garbage collection can be automated. (Remove old generations)
+  nix.gc = {
+  automatic = true;
+  dates = "weekly";
+  options = "--delete-older-than 14d";
+};
+
+  # Install Zsh
+  programs.zsh.enable = true;
+  programs.zsh.enableCompletion = true;
+  users.defaultUserShell = pkgs.zsh;
+  environment.shells = with pkgs; [ zsh ];
+
+  # AMD CPU Microcode Update
+  hardware.cpu.amd.updateMicrocode = true;
+
+  # Update Firmware
+  services.fwupd.enable = true;
+
+  # Install flatpak
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+
+  # Install Firefox
+  programs.firefox.enable = true;
+
+  # Install Steam
+  programs.steam.enable = true;
+  programs.gamemode.enable = true;
+
+  # Gnome Disk Utility
+  programs.gnome-disks.enable = true;
+
+  # Smartmontools
+  services.smartd.enable = true;
+
+  # Set your timezone
+  time.timeZone = "Europe/Berlin";
+
+
+  # Enable sound support
+  hardware.pulseaudio.enable = true;
+
+  # rtkit is optional but recommended
+  security.rtkit.enable = true;
+  services.pipewire = {
+  enable = true;
+  alsa.enable = true;
+  alsa.support32Bit = true;
+  pulse.enable = true;
+  # If you want to use JACK applications, uncomment this
+  #jack.enable = true;
+};
+
+  # Enable MP3 audio support
+  services.pulseaudio.enableMP3 = true;
+
+  # Enable Trim
+  services.fstrim.enable = true;
+  services.fstrim.interval = "weekly";
+
+}
+
+

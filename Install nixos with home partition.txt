@@ -1,0 +1,66 @@
+ 
+To install NixOS with a separate home partition, follow the steps below:
+
+    Boot into the NixOS installation media.
+    Once booted, open a shell by pressing Ctrl + Alt + F2.
+    Partition your disk using a tool like parted or gdisk. Ensure you have a separate partition for the home directory.
+        For example, if your disk is /dev/sda, you can create a partition for the home directory as /dev/sda3.
+    Format the partitions using the appropriate filesystem. For the home partition, you can use a filesystem like ext4 or btrfs if preferred.
+        For example, if the home partition is /dev/sda3, you can format it with mkfs.ext4 /dev/sda3.
+    Mount the root partition (usually /dev/sda1) to /mnt:
+
+
+    mount /dev/sda1 /mnt
+
+    Create a directory for the home partition in /mnt:
+
+
+    mkdir /mnt/home
+
+    Mount the home partition to /mnt/home:
+
+
+    mount /dev/sda3 /mnt/home
+
+    Generate a NixOS configuration using nixos-generate-config:
+
+
+    nixos-generate-config --root /mnt
+
+    Open the generated configuration file in a text editor:
+
+
+    nano /mnt/etc/nixos/configuration.nix
+
+    Modify the configuration.nix file to include the home option. Below is an example configuration:
+
+
+{ config, pkgs, ... }:
+
+{
+  # ...
+
+  # Set the mount point for the home partition
+  fileSystems."/home" = {
+    device = "/dev/sda3";
+    fsType = "ext4"; # or the filesystem format you used
+  };
+
+  # ...
+}
+
+    Save and exit the text editor.
+    Install NixOS to the mounted partitions by running:
+
+
+    nixos-install
+
+    This will copy the necessary files to the installed system.
+    Once the installation process completes, restart your computer:
+
+
+    reboot
+
+    Remove the installation media to boot into the newly installed NixOS.
+
+After rebooting, you should have NixOS installed with a separate home partition.
